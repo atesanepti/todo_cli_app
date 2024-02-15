@@ -44,21 +44,39 @@ app.saveToDo = (toDoList) => {
 
 // Add ToDo
 app.addToDo = (description, toDoList) => {
-  const newToDo = { description, completed: false };
+  const newToDo = {
+    description,
+    completed: false,
+    serial: toDoList.length + 1,
+  };
   toDoList.push(newToDo);
   app.saveToDo(toDoList);
   console.log("ToDo added successfully");
 };
 
+//Change ToDo serial no after any todo remove
+app.changeToDoSerial = (toDoList)=>{
+  toDoList.forEach((todo,index,array)=>{
+    array[index].serial = index + 1;
+  })
+}
+
 // Remove or Delete ToDo
-app.removeToDo = (index, toDoList) => {
-  if (index >= 0 && index < toDoList.length) {
-    toDoList.splice(index, 1);
-    app.saveToDo(toDoList);
-    console.log("ToDo successfully Removed");
-  } else {
-    console.log("Invalid ToDo Index");
-  }
+app.removeToDo = (command, toDoList) => {
+  command.sort((a, b) => b - a);
+  command.forEach((cmd) => {
+    let index = parseInt(cmd) - 1;
+    if (index >= 0 && index < toDoList.length) {
+      toDoList.splice(index, 1);
+    } else {
+      console.log("Invalid ToDo Index");
+    }
+  });
+  app.changeToDoSerial(toDoList);
+  app.saveToDo(toDoList);
+
+  const removedToDo = command.join(",");
+  console.log(removedToDo + " ToDo Removed");
 };
 
 // List or Show all ToDo
@@ -99,7 +117,7 @@ app.handleCommand = (input, toDoList) => {
       app.addToDo(arg.join(" "), toDoList);
       break;
     case app.command.REMOVE:
-      app.removeToDo(parseInt(arg[0]) - 1, toDoList);
+      app.removeToDo(arg, toDoList);
       break;
     case app.command.LIST:
       app.listAllToDo(toDoList);
